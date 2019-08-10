@@ -11,6 +11,10 @@ class Controller(threading.Thread):
         # check if there are any live threads in thread pool
         return True in [t.isAlive() for t in self.thread_pool]
     
+    def stop_all_threads(self):
+        for t in self.thread_pool:
+            t.kill_signal = True
+    
     def start_all_threads(self):
         for t in self.thread_pool:
             t.start()
@@ -54,8 +58,8 @@ if __name__ == '__main__':
     def x(tid, msg='Default message'):
         print(f'Message from thread {tid}: {msg}')
 
-    t1 = ThreadingClass(target=x, args=((1, )), kwargs={'msg': 'Hello World', })
-    t2 = ThreadingClass(target=x, args=((2, )), kwargs={'msg': 'FML', })
+    t1 = ThreadingClass(target=x, args=(1, ) )
+    t2 = ThreadingClass(target=x, args=(2, ) )
 
     ctrl.add_thread(t1)
     ctrl.add_thread(t2)
