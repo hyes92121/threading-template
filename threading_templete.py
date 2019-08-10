@@ -29,20 +29,21 @@ class Controller(threading.Thread):
                 raise error
                 
 class ThreadingClass(threading.Thread):
-    def __init__(self, n):
+    def __init__(self, target=None, args=(), kwargs={}):
         """
         Discussion of super().__init__(self) vs Base.__init__(self):
         https://stackoverflow.com/questions/222877/what-does-super-do-in-python/33469090#33469090
         """
         threading.Thread.__init__(self) 
         self.kill_signal = False
-        self.n = n
+        self.func = target
+        self.args = args
+        self.kwargs = kwargs
 
-    
     def run(self):
         while not self.kill_signal:
             try:
-                print(f'Thread {self.n}: Doing something...')
+                self.func(*self.args, **self.kwargs)
             except KeyboardInterrupt: # terminate the thread when Ctrl-C is pressed
                 self.kill_signal = True
 
@@ -50,18 +51,14 @@ class ThreadingClass(threading.Thread):
 if __name__ == '__main__':
     ctrl = Controller()
 
-    t1 = ThreadingClass(1)
-    t2 = ThreadingClass(2)
+    def x(tid, msg='Default message'):
+        print(f'Message from thread {tid}: {msg}')
+
+    t1 = ThreadingClass(target=x, args=((1, )), kwargs={'msg': 'Hello World', })
+    t2 = ThreadingClass(target=x, args=((2, )), kwargs={'msg': 'FML', })
 
     ctrl.add_thread(t1)
     ctrl.add_thread(t2)
-
-    print(id(t1))
-    print()
-
-
-
-    print(ctrl.has_live_threads())
 
     ctrl.start_all_threads()
 
